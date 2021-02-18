@@ -1,0 +1,52 @@
+{% load index %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+        <div class="text-center" style="margin: 35px 0;">
+            <small>
+                <a href="{% url 'city' %}?city_name={{ city_name }}">Search - {{ city_name }}</a>
+                <span class="ml-1">|</span>
+                <a href="{% url 'places_to_visit' city_name %}" class="ml-1">Places to visit</a>
+                <span class="ml-1">|</span>
+                <a href="{% url 'index' %}">Travelista</a>
+            </small>
+        </div>
+
+    <div>
+        <h2 class="mt-4 text-center">Famous food in {{ city_name }}</h2>
+
+        {% if restaurants %}
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-evenly; flex-direction: row;">
+            {% for restaurant in restaurants.values %}
+            <div style="width: 30%; margin: 30px 0;">
+                    
+                    {% if restaurant.photo_link %}
+                        <img src="{{ restaurant.photo_link }}" style="width: 100%;">
+                    {% endif %}
+                    <h4 class="card-title">{{ restaurant.name }}</h4>
+                        {% for inf in restaurant.res_items %}
+                            <p>{{ inf }}</p>
+                        {% endfor %}
+                    <p class="card-text text-justify" style="line-height: 16px;"><small>{{ restaurant.info }}</small></p>
+                    <!-- <a href="{{ place.link }}" class="btn btn-sm btn-primary">know more &gt;&gt;</a> -->
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+            <p class="text-center"><i>No result found...</i></p>
+        {% endif %}
+    </div>
+</body>
+</html>
