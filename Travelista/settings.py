@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 # import django
 # django.setup()
+# updated setting.py
 
 from pathlib import Path
 import os
