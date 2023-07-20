@@ -1,16 +1,16 @@
 from django.contrib import admin
-from .models import CityInfo, PlacesToVisit, Food
+from .models import City, Place, Restaurant
 
 # Register your models here.
-class CityInfoAdmin(admin.ModelAdmin):
+class CityAdmin(admin.ModelAdmin):
     list_display = ('city_name', 'id')
 
-class PlacesToVisitAdmin(admin.ModelAdmin):
-    list_display = ('city_name', 'id')
+class PlaceAdmin(admin.ModelAdmin):
+    list_display = ('name', 'city_name', 'id')
 
-class FoodAdmin(admin.ModelAdmin):
-    list_display = ('city_name', 'id')
+class RestaurantAdmin(admin.ModelAdmin):
+    list_display = ('name', 'city_name', 'id')
 
-admin.site.register(CityInfo, CityInfoAdmin)
-admin.site.register(PlacesToVisit, PlacesToVisitAdmin)
-admin.site.register(Food, FoodAdmin)
+admin.site.register(City, CityAdmin)
+admin.site.register(Place, PlaceAdmin)
+admin.site.register(Restaurant, RestaurantAdmin)

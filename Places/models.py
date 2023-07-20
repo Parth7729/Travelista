@@ -1,27 +1,38 @@
-from django.db.models import Model, CharField, TextField, IntegerField, ImageField
+from django.db.models import Model, CharField, TextField, URLField
 from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
-class CityInfo(Model):
-    city_name = CharField(max_length=50)
-    city_image_link = CharField(max_length=200, null=True)
+class City(Model):
+    city_name = CharField(max_length=50, unique=True)
+    image_URL = URLField(max_length=200, null=True, blank=True)
     state = CharField(max_length=200, null=True, blank=True)
-    country = CharField(max_length=200, null=True)
-    covid_details = CharField(max_length=100, null=True, blank=True)
-    about_the_city = TextField(null=True)
+    country = CharField(max_length=200, null=True, blank=True)
+    about = ArrayField(TextField(null=True), null=True, blank=True)
+    tag = CharField(max_length=300, null=True, blank=True)
 
-class PlacesToVisit(Model):
-    city_name = CharField(max_length=50)
-    names_of_places = ArrayField(CharField(max_length=60), null=True)
-    links_of_places = ArrayField(CharField(max_length=200), null=True)
-    photo_links = ArrayField(CharField(max_length=200), null=True)
-    about_the_places = ArrayField(CharField(max_length=1000), null=True)
-    total_places = IntegerField(null=True)
+    class Meta:
+        verbose_name = 'City'
+        verbose_name_plural = 'Cities'
 
-class Food(Model):
-    city_name = CharField(max_length=50)
-    names_of_restaurants = ArrayField(CharField(max_length=60), null=True)
-    about_the_restaurants = ArrayField(CharField(max_length=300), null=True)
-    photo_links = ArrayField(CharField(max_length=200), null=True)
-    restaurant_items = ArrayField(ArrayField(CharField(max_length=100)))
-    total_restaurants = IntegerField(null=True)
+    def __str__(self):
+        return self.city_name
+
+class Place(Model):
+    name = CharField(max_length=100)
+    about = TextField(blank=True)
+    image_URL = URLField(max_length=200, blank=True)
+    city_name = CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Restaurant(Model):
+    name = CharField(max_length=50)
+    image_URL = URLField(max_length=200, blank=True)
+    items = ArrayField(CharField(max_length=200), null=True, blank=True)
+    city_name = CharField(max_length=100)
+    about = TextField(blank=True)
+
+    def __str__(self):
+        return self.name

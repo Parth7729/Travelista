@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Places',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -81,9 +82,9 @@ WSGI_APPLICATION = 'Travelista.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'travelista-data',
+        'NAME': 'travelista',
         'USER': 'postgres',
-        'PASSWORD': '',
+        'PASSWORD': 'Praveen1@',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }

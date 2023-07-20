@@ -1,99 +1,115 @@
 from django.shortcuts import render, redirect
-from .models import CityInfo, PlacesToVisit, Food
 from Places.Scraping import scraper
+from .models import City, Place, Restaurant
+from .serializers import CitySerializer, PlaceSerializer, RestaurantSerializer
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
+def filter_name(name):
+    return '-'.join(name.lower().split(' '))
+
+@api_view(['GET'])
 def index(request):
-    cities = {}
-    city_data = ''
+    data =  City.objects.all().order_by('-id')[:6]
+    serializer = CitySerializer(data, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def city(request, city_name):
+    name = filter_name(city_name)
     try:
-        city_data = CityInfo.objects.all()[:4]
-        if city_data:
-            for i in range(4):
-                cities[i] = {'city_name': city_data[i].city_name, 'city_image_link': city_data[i].city_image_link, 'state': city_data[i].state, 'country': city_data[i].country}
+        data = City.objects.get(city_name=name)
+        serializer = CitySerializer(data)
+        return Response(serializer.data)
     except:
-        pass
-
-    context = {'cities': cities}
-    return render(request, 'Places/index.html', context)
-
-def city(request):
-    if request.GET:
-        city_name = request.GET['city_name'].title().replace(' ', '-')
-    else:
-        return redirect('index')    
-
-    context = {'city_name': city_name}
-    if CityInfo.objects.filter(city_name=city_name).exists():
-        data = CityInfo.objects.get(city_name=city_name)
-        context = {'city_name': data.city_name, 'city_image_link': data.city_image_link, 'state': data.state, 'country': data.country, 'covid_details': data.covid_details, 'para': data.about_the_city}
+        res = scraper.city_info(name)
+        if res == {}:
+            return Response({'message': name, 'status': 404})
         
-    else: 
-        city_info = scraper.city_info(city_name)
+        serializer = CitySerializer(data=res)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'success', 'data':res})
         
-        if city_info != {}:
-            instance = CityInfo(city_name=city_name, city_image_link=city_info['city_image_link'], state=city_info['state'], country=city_info['country'], covid_details=city_info['covid_details'], about_the_city=city_info['para'])
-            instance.save()
+        return Response({'message':'failed', 'data':res})
+        
 
-            data = CityInfo.objects.get(city_name=city_name)
-            context = {'city_name': data.city_name, 'city_image_link': data.city_image_link, 'state': data.state, 'country': data.country, 'covid_details': data.covid_details, 'para': data.about_the_city}
+@api_view(['GET'])
+def places_to_visit(request, city_name):
+    name = filter_name(city_name)
+    try:
+        data = Place.objects.filter(city_name=name)
+        if len(data) != 0:
+            serializer = PlaceSerializer(data, many=True)
+            return Response(serializer.data)
 
-    return render(request, 'Places/city.html', context)
+        else:
+            res = scraper.places_to_visit(name)
+            if res == {}:
+                return Response({'message': 'data not found', 'status': 404})
+            
+            for place in res.values():
+                serializer = PlaceSerializer(data=place)
+                if serializer.is_valid():
+                    serializer.save()
+            
+            return Response({'message':'success', 'data':res})
 
 
-def places_to_visit(request, city_name=None):
+    except Exception as e:
+        print(e)
+        return Response({'message':'failed', 'data':res})
     
-    places = {}
-    places_data = {}
 
-    if PlacesToVisit.objects.filter(city_name=city_name).exists():
-        data = PlacesToVisit.objects.get(city_name=city_name)
-        places_data = {'names': data.names_of_places, 'links': data.links_of_places, 'photo_links': data.photo_links, 'info': data.about_the_places, 'total_places': data.total_places}
-        
-    else:
-        places_data = scraper.places_to_visit(city_name)
-
-        if places_data != {}:
-            instance = PlacesToVisit(city_name=city_name, names_of_places=places_data['names'], links_of_places=places_data['links'], photo_links=places_data['photo_links'], about_the_places=places_data['info'], total_places=places_data['total_places'])
-            instance.save()
-    if places_data != {}: 
-        for i in range(places_data['total_places']):
-            places[i+1] = {'name': places_data['names'][i], 'link': places_data['links'][i], 'photo_link': places_data['photo_links'][i], 'info': places_data['info'][i]}
-
-    context = {'places': places, 'city_name': city_name}
-
-    return render(request, 'Places/places_to_visit.html', context)
-
-
-def food(request, city_name=None):
-    restaurants = {}
-    restaurants_data = {}
-
-    if Food.objects.filter(city_name=city_name).exists():
-        data = Food.objects.get(city_name=city_name)
-        restaurants_data = {'names': data.names_of_restaurants, 'info': data.about_the_restaurants, 'photo_links': data.photo_links, 'res_items': data.restaurant_items, 'total_restaurants': data.total_restaurants}
-
-    else:
-        restaurants_data = scraper.food(city_name)
-
-        if restaurants_data != {}:
-            instance = Food(city_name=city_name, names_of_restaurants=restaurants_data['names'], about_the_restaurants=restaurants_data['info'], photo_links=restaurants_data['photo_links'], restaurant_items=restaurants_data['res_items'], total_restaurants=restaurants_data['total_restaurants'])
-            instance.save()
-
-    if restaurants_data != {}:
-        for i in range(restaurants_data['total_restaurants']):
-            restaurants[i+1] = {'name': restaurants_data['names'][i], 'info': restaurants_data['info'][i], 'photo_link': restaurants_data['photo_links'][i], 'res_items': restaurants_data['res_items'][i]}
+@api_view(['GET'])
+def get_place(request, city_name, place):
+    name = filter_name(city_name)
+    try:
+        data = Place.objects.get(city_name = name, name=place)
+        serializer = PlaceSerializer(data)
+        return Response({'message':'success', 'data':serializer.data})
     
-    context = {'restaurants': restaurants, 'city_name': city_name}
+    except Exception as e:
+        print(e)
+        return Response({'message':'data not found', 'data':place}, 404)
+        
 
-    return render(request, 'Places/food.html', context)
+@api_view(['GET'])
+def get_restaurants(request, city_name):
+    name = filter_name(city_name)
+    try:
+        data = Restaurant.objects.filter(city_name=name)
+        if len(data) != 0:
+            serializer = RestaurantSerializer(data, many=True)
+            return Response({'message':'success', 'data':serializer.data})
+
+        else:
+            res = scraper.food(name)
+            if res == {}:
+                return Response({'message': 'data not found'}, 404)
+            
+            for restaurant in res.values():
+                serializer = RestaurantSerializer(data=restaurant)
+                if serializer.is_valid():
+                    serializer.save()
+            
+            return Response({'message':'success', 'data':res})
 
 
-def contact(request):
-    return render(request, 'Places/contact.html')
+    except Exception as e:
+        print(e)
+        return Response({'message':'failed', 'data':res})
+    
 
-def about(request):
-    return render(request, 'Places/about.html')
-
-def abc(request):
-    return render(request, 'Places/abc.html')
+@api_view(['GET'])
+def get_restaurant(request, city_name, restaurant):
+    name = filter_name(city_name)
+    try:
+        data = Restaurant.objects.get(city_name = name, name=restaurant)
+        serializer = RestaurantSerializer(data)
+        return Response({'message':'success', 'data':serializer.data})
+    
+    except Exception as e:
+        print(e)
+        return Response({'message':'data not found', 'data':restaurant}, 404)
