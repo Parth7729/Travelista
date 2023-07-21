@@ -13,23 +13,43 @@ def filter_name(name):
 def index(request):
     data =  City.objects.all().order_by('-id')[:6]
     serializer = CitySerializer(data, many=True)
-    return Response(serializer.data)
+    return Response({'message':'success', 'data':serializer.data})
 
 @api_view(['GET'])
 def city(request, city_name):
     name = filter_name(city_name)
+    res = {}
+    
+    data = Place.objects.filter(city_name=name)[:6]
+    serializer_place = PlaceSerializer(data, many=True)
+    res['places'] = serializer_place.data
+
+
+    data = Restaurant.objects.filter(city_name=name)[:6]
+    serializer_restaurant = RestaurantSerializer(data, many=True)
+    res['restaurants'] = serializer_restaurant.data
+
+
+
     try:
         data = City.objects.get(city_name=name)
-        serializer = CitySerializer(data)
-        return Response(serializer.data)
-    except:
-        res = scraper.city_info(name)
-        if res == {}:
-            return Response({'message': name, 'status': 404})
+        serializer_city = CitySerializer(data)
+        res['city_data'] = serializer_city.data
+
+
+        return Response({'message':'success', 'data':res})
+    
+
+    except Exception as e:
+        print(e)
+        scraped_data = scraper.city_info(name)
+        if scraped_data == {}:
+            return Response({'message': 'no data found'}, 404)
         
-        serializer = CitySerializer(data=res)
+        serializer = CitySerializer(data=scraped_data)
         if serializer.is_valid():
             serializer.save()
+            res['city_data'] = scraped_data
             return Response({'message':'success', 'data':res})
         
         return Response({'message':'failed', 'data':res})
@@ -42,24 +62,24 @@ def places_to_visit(request, city_name):
         data = Place.objects.filter(city_name=name)
         if len(data) != 0:
             serializer = PlaceSerializer(data, many=True)
-            return Response(serializer.data)
+            return Response({'message':'success', 'data':serializer.data})
 
         else:
-            res = scraper.places_to_visit(name)
-            if res == {}:
+            scraped_data = scraper.places_to_visit(name)
+            if scraped_data == {}:
                 return Response({'message': 'data not found', 'status': 404})
             
-            for place in res.values():
+            for place in scraped_data.values():
                 serializer = PlaceSerializer(data=place)
                 if serializer.is_valid():
                     serializer.save()
             
-            return Response({'message':'success', 'data':res})
+            return Response({'message':'success', 'data':scraped_data})
 
 
     except Exception as e:
         print(e)
-        return Response({'message':'failed', 'data':res})
+        return Response({'message':'failed'}, 500)
     
 
 @api_view(['GET'])
@@ -72,7 +92,7 @@ def get_place(request, city_name, place):
     
     except Exception as e:
         print(e)
-        return Response({'message':'data not found', 'data':place}, 404)
+        return Response({'message':'data not found'}, 404)
         
 
 @api_view(['GET'])
@@ -85,31 +105,31 @@ def get_restaurants(request, city_name):
             return Response({'message':'success', 'data':serializer.data})
 
         else:
-            res = scraper.food(name)
-            if res == {}:
+            scraped_data = scraper.food(name)
+            if scraped_data == {}:
                 return Response({'message': 'data not found'}, 404)
             
-            for restaurant in res.values():
+            for restaurant in scraped_data.values():
                 serializer = RestaurantSerializer(data=restaurant)
                 if serializer.is_valid():
                     serializer.save()
             
-            return Response({'message':'success', 'data':res})
+            return Response({'message':'success', 'data':scraped_data})
 
 
     except Exception as e:
         print(e)
-        return Response({'message':'failed', 'data':res})
+        return Response({'message':'failed'}, 500)
     
 
 @api_view(['GET'])
 def get_restaurant(request, city_name, restaurant):
     name = filter_name(city_name)
     try:
-        data = Restaurant.objects.get(city_name = name, name=restaurant)
+        data = Restaurant.objects.get(city_name=name, name=restaurant)
         serializer = RestaurantSerializer(data)
         return Response({'message':'success', 'data':serializer.data})
     
     except Exception as e:
         print(e)
-        return Response({'message':'data not found', 'data':restaurant}, 404)
+        return Response({'message':'data not found'}, 404)
