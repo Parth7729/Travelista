@@ -84,8 +84,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'travelista',
         'USER': 'postgres',
-        'PASSWORD': 'Praveen1@',
-        'HOST': '127.0.0.1',
+        'PASSWORD': '',
+        'HOST': 'database.cg1hio1g3xed.ap-southeast-2.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
