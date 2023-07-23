@@ -52,7 +52,7 @@ def city(request, city_name):
             res['city_data'] = scraped_data
             return Response({'message':'success', 'data':res})
         
-        return Response({'message':'failed', 'data':res})
+        return Response({'message':'failed', 'data':serializer.data})
         
 
 @api_view(['GET'])

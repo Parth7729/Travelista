@@ -19,7 +19,7 @@ def city_info(city_name):
 
         soup = bs(page.content, 'html.parser')
         
-        city_image_link = soup.find('div', class_= 'atf-cover-image')['style'][23:-3]
+        city_image_link = soup.find('div', class_= 'atf-cover-image')['style'][23:-3].replace(' ', '')
 
         location = soup.find('div', class_='col-12 col-lg-6 right')
         # name = filter_text(location.find('h1').text)
