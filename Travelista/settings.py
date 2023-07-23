@@ -15,6 +15,10 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,10 +28,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '#xhvp)cbm$4!y-s6ry4jmdmdt!@vn_&(x97n%4=tm(qicyjq2x'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -79,12 +83,13 @@ WSGI_APPLICATION = 'Travelista.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'travelista',
         'USER': 'postgres',
-        'PASSWORD': 'nishapraveen',
+        'PASSWORD': os.environ.get('AWS_DB_PASSWORD'),
         'HOST': 'database.cg1hio1g3xed.ap-southeast-2.rds.amazonaws.com',
         'PORT': '5432',
     }
@@ -139,7 +144,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
