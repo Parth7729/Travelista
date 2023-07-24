@@ -52,22 +52,22 @@ def places_to_visit(city_name):
         soup = bs(page.content, 'html.parser')
         cards = soup.find_all('div', class_="card content-card")
 
-        places_data = {}
+        places_data = []
         
 
         for i in range(0, len(cards)):
 
-            places_data[i+1] = {
+            places_data.append({
                 'name': filter_name(filter_text(cards[i].find('h3').text)),
                 'image_URL': cards[i].find('img', class_="card-img-top lazy")['data-original'],
                 'about': filter_text(cards[i].find('p', class_='card-text').text),
                 'city_name': city_name
-            }
+            })
         
         return places_data
 
     except:
-        return {}
+        return []
     
 def food(city_name):
     try:
@@ -76,7 +76,7 @@ def food(city_name):
         soup = bs(page.content, 'html.parser')
         cards = soup.find('div', class_='row no-gutters mb-50 negative-margin-mobile').find_all('div', class_='col-12 col-md-6 pr-md-3')
         
-        restaurants_data = {}
+        restaurants_data = []
 
         for curr_restaurant in range(len(cards)):
 
@@ -94,9 +94,9 @@ def food(city_name):
                 txt = filter_text(restaurant_item.text)
                 items.append(txt)
             
-            restaurants_data[curr_restaurant+1] = {'name':name, 'about':about, 'image_URL':image, 'items':items, 'city_name':city_name}
+            restaurants_data.append({'name':name, 'about':about, 'image_URL':image, 'items':items, 'city_name':city_name})
         
         return restaurants_data
 
     except:
-        return {}
+        return []

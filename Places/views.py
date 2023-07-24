@@ -66,10 +66,10 @@ def places_to_visit(request, city_name):
 
         else:
             scraped_data = scraper.places_to_visit(name)
-            if scraped_data == {}:
-                return Response({'message': 'data not found', 'status': 404})
+            if len(scraped_data) == 0:
+                return Response({'message': 'data not found'}, 404)
             
-            for place in scraped_data.values():
+            for place in scraped_data:
                 serializer = PlaceSerializer(data=place)
                 if serializer.is_valid():
                     serializer.save()
@@ -106,10 +106,10 @@ def get_restaurants(request, city_name):
 
         else:
             scraped_data = scraper.food(name)
-            if scraped_data == {}:
+            if len(scraped_data) == 0:
                 return Response({'message': 'data not found'}, 404)
             
-            for restaurant in scraped_data.values():
+            for restaurant in scraped_data:
                 serializer = RestaurantSerializer(data=restaurant)
                 if serializer.is_valid():
                     serializer.save()
