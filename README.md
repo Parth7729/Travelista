@@ -14,13 +14,13 @@ Deployed on - **AWS EC2**
 
 #### Get all Cities currently in DB
 
-```http
+```
   GET codehashira.in/api/index
 ```
 
 #### Get City details
 
-```http
+```
   GET codehashira.in/api/get-city-data/<city_name>
 ```
 
@@ -30,7 +30,7 @@ Deployed on - **AWS EC2**
 
 #### Get list of all famous places for a city
 
-```http
+```
   GET codehashira.in/api/get-places/<city_name>
 ```
 
@@ -41,7 +41,7 @@ Deployed on - **AWS EC2**
 
 #### Get list of all restaurants in a city
 
-```http
+```
   GET codehashira.in/api/get-restaurants/<city_name>
 ```
 
@@ -51,7 +51,7 @@ Deployed on - **AWS EC2**
 
 #### Get details of a restaurant
 
-```http
+```
   GET codehashira.in/api/restaurant/<city_name>/<restaurant_name>
 ```
 
@@ -62,7 +62,7 @@ Deployed on - **AWS EC2**
 
 #### Get details of a place
 
-```http
+```
   GET codehashira.in/api/place/<city_name>/<place_name>
 ```
 
