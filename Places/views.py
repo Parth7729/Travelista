@@ -11,7 +11,7 @@ def filter_name(name):
 
 @api_view(['GET'])
 def index(request):
-    data =  City.objects.all().order_by('-id')[:6]
+    data =  City.objects.all().order_by('-id')
     serializer = CitySerializer(data, many=True)
     return Response({'message':'success', 'data':serializer.data})
 
